@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphic Programmer Challenge</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="shortcut icon" href="favicon.ico"/>
+
+    <!-- Scripts da lib matematica -->
+    <script src="js/Math/Vector3.js"></script>
+    <script src="js/Math/Matrix4.js"></script>
+
+    <!-- Contexto WebGL -->
+    <script src="js/GL.js"></script>
+    <!-- Loop de renderização -->
+    <script src="js/RenderLoop.js"></script>
+
+    <!-- Renderizador -->
+    <script src="js/Shader.js"></script>
+    <script src="js/Sprite.js"></script>
+    <script src="js/Curve.js"></script>
+    <script src="js/Transform.js"></script>
+    <script src="js/Camera.js"></script>
+    <script src="js/Scene.js"></script>
+
+    <!-- Fisica -->
+    <script src="js/Physics.js"></script>
+
+    <!-- Funções gerais -->
+    <script src="js/Util.js"></script>
+
+    <!-- Aplicação do usuario -->
+    <script src="js/Application.js"></script>
+
+    <script>
+        /* Uma aplicação precisa de um contexto e um loop de renderização para ser excutada */
+        var context = null;
+        var renderLoop = null;
+        var application2D = null;
+
+        /* Ao carregar a pagina cria o contexto WebGL */
+        window.addEventListener("load", function () {
+            /* Cria o contexto e impa a tela */
+            context = CreateContext("gl-canvas");
+            context.setClearColor(0.9, 0.9, 0.9);
+            context.clearScreen();
+            
+            /* Instancia a aplicação */
+            application2D = new Application2D();
+
+            /* Inicia o loop de renderização */
+            renderLoop = new RenderLoop(onRender);
+            renderLoop.start();
+        });
+
+        /* Limpa tela e atualiza a aplicação */
+        function onRender(deltaTime) {
+            context.clearScreen();
+            application2D.onUpdate(deltaTime);
+        }
+
+    </script>
+</head>
+<body>
+    <!-- Exibição das informações calculadas -->
+    <div id="main">
+        <div id="info">
+            <span class="fild">Tamanho: <span id="size"></span> </span>
+            <span class="fild">Altura: <span id="height"></span> </span>
+            <span class="fild">Distância: <span id="distance"></span> </span>
+            <span class="fild">&#8593; e &#8595; para alterar o ângulo</span>
+            <span class="fild">"Espaço" para simular</span>
+            <span class="fild"><a href="https://github.com/vicentecesar/graphic-programmer-challenge" target="_blank">Créditos</a></span>
+        </div>
+        <canvas id="gl-canvas"></canvas>
+    </div>
+
+    <!-- Codigo dos shaders -->
+
+    <script id="vertex-shader" type="x-shader/x-vertex">#version 300 es
+
+        layout (location = 0) in vec3 v_pos;
+        layout (location = 1) in vec2 v_uv;
+
+        out highp vec2 f_uv;
+
+        /* Transform uniforms */
+        uniform mat4 model;
+        uniform mat4 view;
+        uniform mat4 projection;
+
+        void main(void) {
+            gl_Position = projection * view * model * vec4(v_pos, 1.0f);
+            f_uv = v_uv;
+        }
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">#version 300 es
+
+        precision mediump float;
+
+        in highp vec2 f_uv;
+
+        out lowp vec4 outColor;
+
+        uniform sampler2D tex;
+
+        void main(void) {
+            vec4 c = texture(tex, f_uv);
+            outColor = c;
+        }
+    </script>
+
+    <!-- Imagem dos sprites -->
+
+    <img src="assets/background.png" id="background" style="display:none;">
+    <img src="assets/grass.png" id="grass" style="display:none;">
+    <img src="assets/tank.png" id="tank" style="display:none;">
+    <img src="assets/cannon.png" id="cannon" style="display:none;">
+    <img src="assets/projectile.png" id="projectile" style="display:none;">
+    <img src="assets/blue.png" id="blue" style="display:none;">
+</body>
+</html>
